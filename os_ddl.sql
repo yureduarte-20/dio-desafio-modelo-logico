@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS veiculos(
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     modelo VARCHAR(45) NOT NULL,
     marca VARCHAR(45) NOT NULL,
-    numero_placa VARCHAR(20)
+    numero_placa VARCHAR(20) UNIQUE,
+    ano YEAR(4)
 );
 
 CREATE TABLE IF NOT EXISTS servicos(
@@ -33,7 +34,7 @@ CREATE TABLE IF NOT EXISTS pecas (
     qtde INTEGER DEFAULT 1
 );
 
-CREATE TABLE IF NOT EXISTS equipe(
+CREATE TABLE IF NOT EXISTS equipes(
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     setor VARCHAR(45) NOT NULL
 );
@@ -44,6 +45,7 @@ CREATE TABLE IF NOT EXISTS mecanicos(
     endereco TEXT NOT NULL,
     telefone VARCHAR(14),
     COD VARCHAR(30) NOT NULL UNIQUE,
+    especialidade ENUM('Mecânico Geral', 'Elétrico', 'Borracheiro', 'Lanternagem') DEFAULT 'Mecânico Geral',
     equipe_id INTEGER NOT NULL
 );
 
@@ -62,7 +64,9 @@ CREATE TABLE IF NOT EXISTS ordens_servicos (
     data_emissao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('Aguardando aprovação', 'Concluída', 'Cancelada', 'Em Avaliação', 'Pendente Avaliacao'),
     equipe_id INTEGER NOT NULL,
-    cliente_veiculo_id INTEGER NOT NULL
+    cliente_veiculo_id INTEGER NOT NULL,
+    valor DOUBLE DEFAULT 0.0,
+    tipo ENUM('Revisão', 'Conserto') DEFAULT 'Conserto'
 );
 
 CREATE TABLE IF NOT EXISTS servico_os(
@@ -74,12 +78,13 @@ CREATE TABLE IF NOT EXISTS servico_os(
 CREATE TABLE IF NOT EXISTS pecas_os (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     os_cod INTEGER NOT NULL,
-    peca_id INTEGER NOT NULL
+    peca_id INTEGER NOT NULL,
+    qtde INTEGER DEFAULT 1
 );
 #restrições de refência
 ALTER TABLE mecanicos 
-    ADD CONSTRAINT FK_mecanicos_equipe 
-        FOREIGN KEY (equipe_id) REFERENCES equipe(id);
+    ADD CONSTRAINT FK_mecanicos_equipes 
+        FOREIGN KEY (equipe_id) REFERENCES equipes(id);
 
 ALTER TABLE clientes_veiculos 
     ADD CONSTRAINT `FK_clientesVeiculos_clientes` 
