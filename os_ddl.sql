@@ -1,10 +1,11 @@
+DROP DATABASE IF EXISTS oficina;
 CREATE DATABASE oficina;
 use oficina;
 
 CREATE TABLE IF NOT EXISTS clientes(
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(45) NOT NULL,
-    CPF varchar(11) NOT NULL.
+    CPF varchar(11) NOT NULL,
     endereco TEXT NOT NULL,
     telefone VARCHAR(14),
     CONSTRAINT cpf_unique_constraint UNIQUE(CPF)
@@ -12,7 +13,7 @@ CREATE TABLE IF NOT EXISTS clientes(
 
 CREATE TABLE IF NOT EXISTS veiculos(
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    modelo VARCHAR(45) NOT NULL.
+    modelo VARCHAR(45) NOT NULL,
     marca VARCHAR(45) NOT NULL,
     numero_placa VARCHAR(20)
 );
@@ -59,18 +60,41 @@ CREATE TABLE IF NOT EXISTS ordens_servicos (
     data_prevista DATE NOT NULL,
     data_entregue TIMESTAMP,
     data_emissao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('Aguardando aprovação', 'Concluída', 'Cancelada', 'Em Avaliação', 'Pendente Avaliacao')
+    status ENUM('Aguardando aprovação', 'Concluída', 'Cancelada', 'Em Avaliação', 'Pendente Avaliacao'),
     equipe_id INTEGER NOT NULL,
     cliente_veiculo_id INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS servico_os(
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    os_cod INTEGER NOT NULL,
+    servico_id INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pecas_os (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    os_cod INTEGER NOT NULL,
+    peca_id INTEGER NOT NULL
+);
 #restrições de refência
 ALTER TABLE mecanicos 
     ADD CONSTRAINT FK_mecanicos_equipe 
-        FOREIGN KEY equipe_id REFERENCES equipe(id);
+        FOREIGN KEY (equipe_id) REFERENCES equipe(id);
 
 ALTER TABLE clientes_veiculos 
-    ADD CONSTRAINT FK_clientesVeiculos_clientes 
-        FOREIGN KEY cliente_id REFERENCES clientes(id),
-    ADD CONSTRAINT FK_clientesVeiculos_veiculos 
-        FOREIGN KEY veiculo_id REFERENCES veiculos(id);
+    ADD CONSTRAINT `FK_clientesVeiculos_clientes` 
+        FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    ADD CONSTRAINT `FK_clientesVeiculos_veiculos` 
+        FOREIGN KEY (veiculo_id) REFERENCES veiculos(id);
+
+ALTER TABLE pecas_os 
+    ADD CONSTRAINT `FK_pecasOs_peca`
+        FOREIGN KEY (peca_id) REFERENCES pecas(id),
+    ADD CONSTRAINT `FK_pecasOs_os`
+        FOREIGN KEY (os_cod) REFERENCES ordens_servicos(id);
+
+ALTER TABLE servico_os 
+    ADD CONSTRAINT `FK_servicoOs_servico`
+        FOREIGN KEY (servico_id) REFERENCES servicos(id),
+    ADD CONSTRAINT `FK_servicoOs_os`
+        FOREIGN KEY (os_cod) REFERENCES ordens_servicos(id)
